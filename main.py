@@ -1,32 +1,33 @@
 from fastapi import FastAPI
-from models import Product, Order
-from crud import create_product, get_products, create_order, get_orders_by_user
+import os
 
 app = FastAPI()
 
 @app.get("/")
 def health_check():
-    return {"message": "Server is running"}
+    return {"message": "Server is running", "status": "healthy", "port": os.getenv("PORT")}
 
-@app.post("/products")
-async def add_product(product: Product):
-    return await create_product(product)
+@app.get("/env")
+def check_env():
+    return {
+        "MONGODB_URI": bool(os.getenv("MONGODB_URI")),
+        "DB_NAME": os.getenv("DB_NAME"),
+        "PORT": os.getenv("PORT")
+    }
 
-@app.get("/products")
-async def fetch_products():
-    return await get_products()
+@app.get("/test-import")
+def test_import():
+    try:
+        from models import Product, Order
+        return {"models_import": "success"}
+    except Exception as e:
+        return {"models_import": "failed", "error": str(e)}
 
-@app.post("/orders")
-async def place_order(order: Order):
-    return await create_order(order)
-
-@app.get("/orders/{user_id}")
-async def fetch_orders(user_id: str):
-    return await get_orders_by_user(user_id)
+# DO NOT import at module level yet
 
 if __name__ == "__main__":
     import uvicorn
-    import os
     
-    port = int(os.environ.get("PORT", 8000))
+    port = int(os.getenv("PORT", 8000))
+    print(f"=== Starting server on port {port} ===")
     uvicorn.run(app, host="0.0.0.0", port=port)
