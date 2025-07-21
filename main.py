@@ -23,3 +23,10 @@ async def place_order(order: Order):
 @app.get("/orders/{user_id}")
 async def fetch_orders(user_id: str):
     return await get_orders_by_user(user_id)
+
+if __name__ == "__main__":
+    import uvicorn
+    import os
+    
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
