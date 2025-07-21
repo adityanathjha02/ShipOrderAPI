@@ -4,6 +4,10 @@ from crud import create_product, get_products, create_order, get_orders_by_user
 
 app = FastAPI()
 
+@app.get("/")
+def health_check():
+    return {"message": "Server is running"}
+
 @app.post("/products")
 async def add_product(product: Product):
     return await create_product(product)
